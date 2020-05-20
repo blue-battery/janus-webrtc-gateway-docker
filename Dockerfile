@@ -1,13 +1,37 @@
-FROM buildpack-deps:stretch
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+USER root
 
 RUN sed -i 's/archive.ubuntu.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/g' /etc/apt/sources.list
 
-RUN rm -rf /var/lib/apt/lists/*
-RUN apt-get -y update && apt-get install -y libmicrohttpd-dev \
+# apt-fast.conf apt-get.conf apt.conf
+#MIRRORS=( 'http://archive.ubuntu.com/ubuntu, http://de.archive.ubuntu.com/ubuntu, http://ftp.halifax.rwth-aachen.de/ubuntu, http://ftp.uni-kl.de/pub/linux/ubuntu, http://mirror.informatik.uni-mannheim.de/pub/linux/distributions/ubuntu/' )
+#MIRRORS=( 'ftp://ftp.jaist.ac.jp/pub/Linux/ubuntu, ftp://ftp.riken.jp/Linux/ubuntu, http://ftp.tsukuba.wide.ad.jp/Linux/ubuntu, ftp://mirror.fairway.ne.jp/ubuntu, http://ubuntutym.u-toyama.ac.jp/ubuntu, http://ubuntu-ashisuto.ubuntulinux.jp/ubuntu' )
+#MIRRORS=( ‘http://archive.ubuntu.com/Ubuntu, http://de.archive.ubuntu.com/ubuntu’)
+
+RUN set -x \
+    && apt-get update
+# base software
+RUN set -x \
+    #35.6Mb to 154Mb
+    && apt-get install -y software-properties-common \
+#    apt-get install axel
+#    apt-get install aria2
+    && add-apt-repository ppa:apt-fast/stable \
+#    apt-get update
+#    && curl -o- https://raw.githubusercontent.com/vinyll/certbot-install/master/install.sh | bash \
+    && apt-get install -y apt-fast \
+    && echo "alias apt-get='apt-fast'" >> ~/.bashrc \
+    && echo "alias aptitude='apt-fast'" >> ~/.bashrc
+
+#RUN rm -rf /var/lib/apt/lists/*
+RUN apt-fast -y update && apt-fast install -y libmicrohttpd-dev \
     libjansson-dev \
     libnice-dev \
     libssl-dev \
-    libsrtp-dev \
+    libsrtp2-dev \
     libsofia-sip-ua-dev \
     libglib2.0-dev \
     libopus-dev \
@@ -25,15 +49,15 @@ RUN apt-get -y update && apt-get install -y libmicrohttpd-dev \
     cmake \
     unzip \
     zip \
-    lsof wget vim sudo rsync cron mysql-client openssh-server supervisor locate gstreamer1.0-tools mplayer valgrind certbot python-certbot-apache dnsutils
+    lsof wget vim sudo rsync cron mysql-client openssh-server supervisor locate gstreamer1.0-tools mplayer valgrind certbot python3-certbot-apache dnsutils
 
 
 
 # FFmpeg build section
 RUN mkdir ~/ffmpeg_sources
 
-RUN apt-get update && \
-    apt-get -y install autoconf automake build-essential libass-dev libfreetype6-dev \
+RUN apt-fast update && \
+    apt-fast -y install autoconf automake build-essential libass-dev libfreetype6-dev \
     libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev \
     libxcb-xfixes0-dev pkg-config texinfo zlib1g-dev
 
@@ -68,7 +92,7 @@ RUN OPUS="1.3" && cd ~/ffmpeg_sources && \
     make clean
 
 
-RUN LAME="3.100" && apt-get install -y nasm  && cd ~/ffmpeg_sources && \
+RUN LAME="3.100" && apt-fast install -y nasm  && cd ~/ffmpeg_sources && \
     wget http://downloads.sourceforge.net/project/lame/lame/$LAME/lame-$LAME.tar.gz && \
     tar xzvf lame-$LAME.tar.gz && \
     cd lame-$LAME && \
@@ -131,7 +155,8 @@ RUN FFMPEG_VER="n4.2.1" && cd ~/ffmpeg_sources && \
 
 
 # nginx-rtmp with openresty
-RUN ZLIB="zlib-1.2.11" && vNGRTMP="v1.1.11" && PCRE="8.41" && nginx_build=/root/nginx && mkdir $nginx_build && \
+#RUN ZLIB="zlib-1.2.11" && vNGRTMP="v1.1.11" && PCRE="8.41" && nginx_build=/root/nginx && mkdir $nginx_build && \
+RUN ZLIB="zlib-1.2.11" && vNGRTMP="v1.1.11" && PCRE="8.44" && nginx_build=/root/nginx && mkdir $nginx_build && \
     cd $nginx_build && \
     wget https://ftp.pcre.org/pub/pcre/pcre-$PCRE.tar.gz && \
     tar -zxf pcre-$PCRE.tar.gz && \
@@ -147,7 +172,8 @@ RUN ZLIB="zlib-1.2.11" && vNGRTMP="v1.1.11" && PCRE="8.41" && nginx_build=/root/
     tar zxf $vNGRTMP.tar.gz && mv nginx-rtmp-module-* nginx-rtmp-module
 
 
-RUN OPENRESTY="1.13.6.2" && ZLIB="zlib-1.2.11" && PCRE="pcre-8.41" &&  openresty_build=/root/openresty && mkdir $openresty_build && \
+#RUN OPENRESTY="1.13.6.2" && ZLIB="zlib-1.2.11" && PCRE="pcre-8.41" &&  openresty_build=/root/openresty && mkdir $openresty_build && \
+RUN OPENRESTY="1.15.8.3" && ZLIB="zlib-1.2.11" && PCRE="pcre-8.44" &&  openresty_build=/root/openresty && mkdir $openresty_build && \
     wget https://openresty.org/download/openresty-$OPENRESTY.tar.gz && \
     tar zxf openresty-$OPENRESTY.tar.gz && \
     cd openresty-$OPENRESTY && \
@@ -171,11 +197,12 @@ RUN OPENRESTY="1.13.6.2" && ZLIB="zlib-1.2.11" && PCRE="pcre-8.41" &&  openresty
 # Boringssl build section
 # If you want to use the openssl instead of boringssl
 # RUN apt-get update -y && apt-get install -y libssl-dev
-RUN apt-get -y update && apt-get install -y --no-install-recommends \
+RUN apt-fast -y update && apt-fast install -y --no-install-recommends \
         g++ \
         gcc \
         libc6-dev \
         make \
+        curl \
         pkg-config \
     && rm -rf /var/lib/apt/lists/*
 ENV GOLANG_VERSION 1.7.5
@@ -218,7 +245,7 @@ RUN LIBWEBSOCKET="3.1.0" && wget https://github.com/warmcat/libwebsockets/archiv
     make && make install
 
 
-RUN SRTP="2.2.0" && apt-get remove -y libsrtp0-dev && wget https://github.com/cisco/libsrtp/archive/v$SRTP.tar.gz && \
+RUN SRTP="2.2.0" && apt-fast remove -y libsrtp0-dev && wget https://github.com/cisco/libsrtp/archive/v$SRTP.tar.gz && \
     tar xfv v$SRTP.tar.gz && \
     cd libsrtp-$SRTP && \
     ./configure --prefix=/usr --enable-openssl && \
@@ -227,17 +254,18 @@ RUN SRTP="2.2.0" && apt-get remove -y libsrtp0-dev && wget https://github.com/ci
 
 
 # 8 March, 2019 1 commit 67807a17ce983a860804d7732aaf7d2fb56150ba
-RUN apt-get remove -y libnice-dev libnice10 && \
-    echo "deb http://deb.debian.org/debian  stretch-backports main" >> /etc/apt/sources.list && \
-    apt-get  update && \
-    apt-get install -y gtk-doc-tools libgnutls28-dev -t stretch-backports  && \
-    git clone https://gitlab.freedesktop.org/libnice/libnice.git && \
-    cd libnice && \
-    git checkout 67807a17ce983a860804d7732aaf7d2fb56150ba && \
-    bash autogen.sh && \
-    ./configure --prefix=/usr && \
-    make && \
-    make install
+RUN apt-fast remove -y libnice-dev libnice10 && \
+#    echo "deb http://deb.debian.org/debian  stretch-backports main" >> /etc/apt/sources.list && \
+    apt-fast  update && \
+#    apt-fast install -y gtk-doc-tools libgnutls28-dev -t stretch-backports  && \
+    apt-fast install -y gtk-doc-tools libgnutls28-dev libnice-dev libevent-dev libsrtp2-dev libusrsctp-dev nodejs npm
+
+#    git clone https://gitlab.freedesktop.org/libnice/libnice.git && \
+#    cd libnice && \
+#    git checkout 67807a17ce983a860804d7732aaf7d2fb56150ba && \
+#    bash autogen.sh && \
+#    ./configure --prefix=/usr && \
+#    make && make install
 
 
 RUN COTURN="4.5.0.8" && wget https://github.com/coturn/coturn/archive/$COTURN.tar.gz && \
@@ -258,12 +286,12 @@ RUN COTURN="4.5.0.8" && wget https://github.com/coturn/coturn/archive/$COTURN.ta
 # ./configure CFLAGS="-fsanitize=address -fno-omit-frame-pointer" LDFLAGS="-lasan"
 
 
-# datachannel build
-RUN cd / && git clone https://github.com/sctplab/usrsctp.git && cd /usrsctp && \
-    git checkout origin/master && git reset --hard 1c9c82fbe3582ed7c474ba4326e5929d12584005 && \
-    ./bootstrap && \
-    ./configure && \
-    make && make install
+# datachannel build --> apt-get install libsrtp2-dev
+#RUN cd / && git clone https://github.com/sctplab/usrsctp.git && cd /usrsctp && \
+#    git checkout origin/master && git reset --hard 1c9c82fbe3582ed7c474ba4326e5929d12584005 && \
+#    ./bootstrap && \
+#    ./configure && \
+#    make && make install
 
 
 
