@@ -1,0 +1,22 @@
+version: '3'
+services:
+  janus-gateway:
+    container_name: janus-best-a
+    tty: true
+    image: liaox/janus-webrtc-gateway-docker
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "80:80"
+      - "7088:7088"
+      - "8088:8088"
+      - "8089:8089"
+      - "8188:8188"
+    volumes:
+      - ./janus-gateway:/janus-gateway/
+      - ./jkey:/key/
+    working_dir: /janus-gateway/
+    privileged: true
+    healthcheck:
+      test: "exit 0"

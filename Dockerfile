@@ -1,8 +1,7 @@
-FROM ubuntu:20.04
+FROM buildpack-deps:focal-scm
 
 ENV DEBIAN_FRONTEND=noninteractive
-
-USER root
+ENV TZ Asia/Tokyo
 
 RUN sed -i 's/archive.ubuntu.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/g' /etc/apt/sources.list
 
@@ -12,7 +11,15 @@ RUN sed -i 's/archive.ubuntu.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/g' /
 #MIRRORS=( ‘http://archive.ubuntu.com/Ubuntu, http://de.archive.ubuntu.com/ubuntu’)
 
 RUN set -x \
-    && apt-get update
+    &&  apt-get update \
+#    && apt-get install -y tzdata \
+#    && echo "${TZ}" > /etc/timezone \
+#    && rm /etc/localtime \
+#    && ln -s /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+#    && dpkg-reconfigure -f noninteractive tzdata
+    && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo 'Asia/Shanghai' >/etc/timezone
+
 # base software
 RUN set -x \
     #35.6Mb to 154Mb
@@ -45,11 +52,11 @@ RUN apt-fast -y update && apt-fast install -y libmicrohttpd-dev \
     automake \
     build-essential \
     subversion \
-    git \
+#    git \
     cmake \
     unzip \
     zip \
-    lsof wget vim sudo rsync cron mysql-client openssh-server supervisor locate gstreamer1.0-tools mplayer valgrind certbot python3-certbot-apache dnsutils
+    lsof vim sudo rsync cron mysql-client openssh-server supervisor locate gstreamer1.0-tools mplayer valgrind certbot python3-certbot-apache dnsutils
 
 
 
@@ -283,7 +290,7 @@ RUN COTURN="4.5.0.8" && wget https://github.com/coturn/coturn/archive/$COTURN.ta
 #     make install
 
 
-# ./configure CFLAGS="-fsanitize=address -fno-omit-frame-pointer" LDFLAGS="-lasan"
+# ./configure CFLAGS="-fsanitize=address -fno-omit-frame-pointer" LDFLAGS="-lasan"x`
 
 
 # datachannel build --> apt-get install libsrtp2-dev
@@ -294,11 +301,11 @@ RUN COTURN="4.5.0.8" && wget https://github.com/coturn/coturn/archive/$COTURN.ta
 #    make && make install
 
 
-
-
-RUN cd / && git clone https://github.com/meetecho/janus-gateway.git && cd /janus-gateway && \
-    git checkout refs/tags/v0.9.2 && \
-    sh autogen.sh &&  \
+#RUN cd / && git clone https://github.com/meetecho/janus-gateway.git && cd /janus-gateway && \
+#    git checkout refs/tags/v0.9.2 && \
+COPY janus-gateway /janus-gateway
+WORKDIR /janus-gateway
+RUN sh autogen.sh &&  \
     PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure \
     --enable-post-processing \
     --enable-boringssl \
@@ -318,8 +325,14 @@ RUN cd / && git clone https://github.com/meetecho/janus-gateway.git && cd /janus
     --enable-all-handlers && \
     make && make install && make configs && ldconfig
 
-COPY nginx.conf /usr/local/nginx/nginx.conf
+#WORKDIR /
 
+RUN cd .. && rm -rf /janus-gateway && apt-fast libcurl4-openssl-dev liblua5.3-dev
+
+
+# Put configs in place
+COPY nginx.conf /usr/local/nginx/nginx.conf
+#COPY conf/*.cfg /opt/janus/etc/janus/
 
 ENV NVM_VERSION v0.35.3
 ENV NODE_VERSION v10.16.0
@@ -337,9 +350,11 @@ RUN echo "source $NVM_DIR/nvm.sh && \
 
 
 SHELL ["/bin/bash", "-l", "-euxo", "pipefail", "-c"]
-RUN node -v
-RUN npm -v
+#RUN node -v
+#RUN npm -v
 
+#RUN cd /usr/local/bin/  && \
+#    nohup ./janus --stun-server=stun.l.google.com:19302
 
 
 CMD nginx && janus
