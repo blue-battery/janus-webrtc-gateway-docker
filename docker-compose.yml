@@ -15,7 +15,7 @@ services:
       - "8188:8188"
     volumes:
       - ./janus-gateway:/janus-gateway/
-      - ./jkey:/key/
+      - ./key:/key/
     working_dir: /janus-gateway/
     privileged: true
     healthcheck:
