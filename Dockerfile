@@ -77,12 +77,12 @@ RUN YASM="1.3.0" && cd ~/ffmpeg_sources && \
     make install && \
     make distclean
 
-COPY source.archive/libvpx-v1.8.1.tar.gz /ffmpeg_sources/
-RUN ls
+COPY source.archive/libvpx-v1.8.1.tar.gz /root/ffmpeg_sources
 RUN VPX="v1.8.1" && \
-    cd ~/ffmpeg_sources && \
+    cd ~/ffmpeg_sources && ls && pwd && \
 #    wget https://chromium.googlesource.com/webm/libvpx/+archive/$VPX.tar.gz && \
-    tar xzvf $VPX.tar.gz && \
+#    tar xzvf $VPX.tar.gz && \
+    tar xzvf libvpx-$VPX.tar.gz && \
     pwd \
     cd $VPX && \
     PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests && \
