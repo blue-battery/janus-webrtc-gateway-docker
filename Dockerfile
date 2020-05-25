@@ -5,9 +5,8 @@ ENV TZ Asia/Tokyo
 
 #RUN sed -i 's/archive.ubuntu.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/g' /etc/apt/sources.list
 
-RUN sed -i s/archive.ubuntu.com/mirrors.aliyun.com/g /etc/apt/sources.list \
-    && sed -i s/security.ubuntu.com/mirrors.aliyun.com/g /etc/apt/sources.list \
-    && apt-get -y update && apt-get -y upgrade
+RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
+    && sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 
 
 # apt-fast.conf apt-get.conf apt.conf
@@ -17,6 +16,7 @@ RUN sed -i s/archive.ubuntu.com/mirrors.aliyun.com/g /etc/apt/sources.list \
 
 RUN set -x \
     &&  apt-get update \
+    && apt-get -y upgrade \
 #    && apt-get install -y tzdata \
 #    && echo "${TZ}" > /etc/timezone \
 #    && rm /etc/localtime \
