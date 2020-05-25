@@ -215,10 +215,13 @@ RUN apt-fast -y update && apt-fast install -y --no-install-recommends \
         curl \
         pkg-config \
     && rm -rf /var/lib/apt/lists/*
+
+COPY source.archive/golang.tar.gz /
 ENV GOLANG_VERSION 1.7.5
-ENV GOLANG_DOWNLOAD_URL https://golang.org/dl/go$GOLANG_VERSION.linux-amd64.tar.gz
+#ENV GOLANG_DOWNLOAD_URL https://golang.org/dl/go$GOLANG_VERSION.linux-amd64.tar.gz
 ENV GOLANG_DOWNLOAD_SHA256 2e4dd6c44f0693bef4e7b46cc701513d74c3cc44f2419bf519d7868b12931ac3
-RUN curl -fsSL "$GOLANG_DOWNLOAD_URL" -o golang.tar.gz \
+#RUN curl -fsSL "$GOLANG_DOWNLOAD_URL" -o golang.tar.gz \
+RUN pwd \
     && echo "$GOLANG_DOWNLOAD_SHA256  golang.tar.gz" | sha256sum -c - \
     && tar -C /usr/local -xzf golang.tar.gz \
     && rm golang.tar.gz
