@@ -304,7 +304,7 @@ RUN COTURN="4.5.0.8" && wget https://github.com/coturn/coturn/archive/$COTURN.ta
 # ./configure CFLAGS="-fsanitize=address -fno-omit-frame-pointer" LDFLAGS="-lasan"x`
 
 
-# datachannel build --> apt-get install libsrtp2-dev
+# datachannel build --> apt-get install libusrsctp-dev
 #RUN cd / && git clone https://github.com/sctplab/usrsctp.git && cd /usrsctp && \
 #    git checkout origin/master && git reset --hard 1c9c82fbe3582ed7c474ba4326e5929d12584005 && \
 #    ./bootstrap && \
