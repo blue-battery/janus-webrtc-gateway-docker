@@ -135,7 +135,7 @@ RUN FDK_AAC="2.0.1" && cd ~/ffmpeg_sources && \
     make distclean
 
 RUN FFMPEG_VER="n4.2.1" && cd ~/ffmpeg_sources && \
-    wget https://github.com/FFmpeg/FFmpeg/archive/$FFMPEG_VER.zip && \
+    wget git://github.com/FFmpeg/FFmpeg/archive/$FFMPEG_VER.zip && \
     unzip $FFMPEG_VER.zip
 
 RUN FFMPEG_VER="n4.2.1" && cd ~/ffmpeg_sources && \
