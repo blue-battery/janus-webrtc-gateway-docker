@@ -134,8 +134,10 @@ RUN FDK_AAC="2.0.1" && cd ~/ffmpeg_sources && \
     make install && \
     make distclean
 
+RUN  ls
+#COPY source.archive/libvpx-v1.8.1.tar.gz /root/ffmpeg_sources
 RUN FFMPEG_VER="n4.2.1" && cd ~/ffmpeg_sources && \
-    wget git://github.com/FFmpeg/FFmpeg/archive/$FFMPEG_VER.zip && \
+    wget https://github.com/FFmpeg/FFmpeg/archive/$FFMPEG_VER.zip && \
     unzip $FFMPEG_VER.zip
 
 RUN FFMPEG_VER="n4.2.1" && cd ~/ffmpeg_sources && \
