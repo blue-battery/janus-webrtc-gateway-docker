@@ -354,24 +354,24 @@ RUN cd .. && rm -rf /janus-gateway && apt-fast install -y libcurl4-openssl-dev l
 COPY nginx.conf /usr/local/nginx/nginx.conf
 #COPY conf/*.cfg /opt/janus/etc/janus/
 
-ENV NVM_VERSION v0.35.3
-ENV NODE_VERSION v10.16.0
-ENV NVM_DIR /usr/local/nvm
-RUN mkdir $NVM_DIR
-RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/$NVM_VERSION/install.sh | bash
-
-ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
-ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-
-RUN echo "source $NVM_DIR/nvm.sh && \
-    nvm install $NODE_VERSION && \
-    nvm alias default $NODE_VERSION && \
-    nvm use default" | bash
+#ENV NVM_VERSION v0.35.3
+#ENV NODE_VERSION v10.16.0
+#ENV NVM_DIR /usr/local/nvm
+#RUN mkdir $NVM_DIR
+#RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/$NVM_VERSION/install.sh | bash
+#
+#ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+#ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+#
+#RUN echo "source $NVM_DIR/nvm.sh && \
+#    nvm install $NODE_VERSION && \
+#    nvm alias default $NODE_VERSION && \
+#    nvm use default" | bash
 
 
 SHELL ["/bin/bash", "-l", "-euxo", "pipefail", "-c"]
-#RUN node -v
-#RUN npm -v
+RUN node -v
+RUN npm -v
 
 COPY /key/* /
 RUN cd / && ls
