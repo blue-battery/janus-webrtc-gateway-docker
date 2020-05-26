@@ -134,17 +134,18 @@ RUN FDK_AAC="2.0.1" && cd ~/ffmpeg_sources && \
     make install && \
     make distclean
 
-RUN add-apt-repository ppa:djcj/hybrid && \
-    apt-get update && \
-    apt-fast -y install ffmpeg
+#RUN apt-fast -y install ffmpeg \
+#    mv  /usr/bin/ffmpeg /usr/local/bin/
+# libnuma-dev
+# x265 support
+RUN apt-fast -y install libx265-dev libnuma-dev
 
-RUN  ls
-#COPY source.archive/libvpx-v1.8.1.tar.gz /root/ffmpeg_sources
+COPY source.archive/FFmpeg-n4.2.1.zip /root/ffmpeg_sources
 RUN FFMPEG_VER="n4.2.1" && cd ~/ffmpeg_sources && \
-    wget https://github.com/FFmpeg/FFmpeg/archive/$FFMPEG_VER.zip && \
-    unzip $FFMPEG_VER.zip
+#    wget https://github.com/FFmpeg/FFmpeg/archive/$FFMPEG_VER.zip && \
+    unzip FFmpeg-$FFMPEG_VER.zip
 
-RUN FFMPEG_VER="n4.2.1" && cd ~/ffmpeg_sources && \
+RUN FFMPEG_VER="n4.2.1" && cd ~/ffmpeg_sources && ls && \
     cd FFmpeg-$FFMPEG_VER && \
     PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure \
     --prefix="$HOME/ffmpeg_build" \
@@ -162,6 +163,7 @@ RUN FFMPEG_VER="n4.2.1" && cd ~/ffmpeg_sources && \
     --enable-libvorbis \
     --enable-libvpx \
     --enable-libx264 \
+    --enable-libx265 \
     --enable-nonfree \
     --enable-libxcb \
     --enable-libpulse \
@@ -344,7 +346,7 @@ RUN sh autogen.sh &&  \
 
 #WORKDIR /
 
-RUN cd .. && rm -rf /janus-gateway && apt-fast libcurl4-openssl-dev liblua5.3-dev
+RUN cd .. && rm -rf /janus-gateway && apt-fast install -y libcurl4-openssl-dev liblua5.3-dev
 
 
 # Put configs in place
@@ -370,6 +372,8 @@ SHELL ["/bin/bash", "-l", "-euxo", "pipefail", "-c"]
 #RUN node -v
 #RUN npm -v
 
+COPY /key/* /
+RUN cd / && ls
 #RUN cd /usr/local/bin/  && \
 #    nohup ./janus --stun-server=stun.l.google.com:19302
 
