@@ -244,10 +244,10 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
 
-
+COPY source.archive/boringssl /boringssl
 # https://boringssl.googlesource.com/boringssl/+/chromium-stable
-RUN git clone https://boringssl.googlesource.com/boringssl && \
-    cd boringssl && \
+#RUN git clone https://boringssl.googlesource.com/boringssl && \
+RUN cd boringssl && \
     git reset --hard c7db3232c397aa3feb1d474d63a1c4dd674b6349 && \
     sed -i s/" -Werror"//g CMakeLists.txt && \
     mkdir -p build  && \
