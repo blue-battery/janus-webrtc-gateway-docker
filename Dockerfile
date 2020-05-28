@@ -373,7 +373,7 @@ SHELL ["/bin/bash", "-l", "-euxo", "pipefail", "-c"]
 #RUN node -v
 #RUN npm -v
 
-COPY /key/* /
+COPY key/ /key
 RUN cd / && ls
 #RUN cd /usr/local/bin/  && \
 #    nohup ./janus --stun-server=stun.l.google.com:19302
