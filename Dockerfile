@@ -244,7 +244,8 @@ ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
 
-COPY boringssl /boringssl
+COPY source.archive/boringssl.zip ./
+RUN unzip boringssl.zip
 # https://boringssl.googlesource.com/boringssl/+/chromium-stable
 #RUN git clone https://boringssl.googlesource.com/boringssl && \
 RUN cd boringssl && \
